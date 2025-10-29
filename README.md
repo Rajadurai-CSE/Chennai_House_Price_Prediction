@@ -44,10 +44,6 @@
     <td>₹50L – ₹2Cr</td>
     <td>Excellent ✨</td>
   </tr>
-  <tr>
-    <td>&gt; ₹2Cr</td>
-    <td>Good 👍</td>
-  </tr>
 </table>
 
 
