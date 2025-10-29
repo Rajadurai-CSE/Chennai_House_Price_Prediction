@@ -29,6 +29,8 @@
 <hr style="border:0; border-top:1px solid #e5e7eb; margin:24px 0;">
 
 <h3>📊 Performance by Price Segment</h3>
+<p align="center"> <img width="807" height="250" alt="image" src="https://github.com/user-attachments/assets/45ac2e2d-7cc8-4d12-81fe-2e4213800fd5" /> </p>
+
 <table align="center">
   <tr>
     <th>Price Range</th>
@@ -47,6 +49,9 @@
     <td>Good 👍</td>
   </tr>
 </table>
+
+
+
 
 <hr style="border:0; border-top:1px solid #e5e7eb; margin:24px 0;">
 
