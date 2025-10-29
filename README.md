@@ -21,21 +21,41 @@
 <hr style="border:0; border-top:1px solid #e5e7eb; margin:24px 0;">
 <h2>📈 Key Results</h2>
 <ul style="line-height:1.8;">
-    <li>Achieved <strong>R² = 0.954</strong> and <strong>7.21% MAPE</strong> with the final XGBoost model.</li>
+    <li>Achieved <strong>R² = 0.96</strong> and <strong>7% MAPE</strong> with the final XGBoost model.</li>
     <li>Improved baseline model performance by <strong>6%</strong> through advanced preprocessing and feature engineering.</li>
     <li>Model performs best for <strong>mid-to-high range properties (INR 50L–2Cr)</strong> with 1–7L average error.</li>
     <li>Identified systematic underestimation in <strong>budget segment (<INR 50L)</strong>, guiding future feature enhancement.</li>
 </ul>
 <hr style="border:0; border-top:1px solid #e5e7eb; margin:24px 0;">
+
+<h3>📊 Performance by Price Segment</h3>
+<table align="center">
+  <tr>
+    <th>Price Range</th>
+    <th>Performance</th>
+  </tr>
+  <tr>
+    <td>&lt; ₹50L</td>
+    <td>Needs improvement ⚠️</td>
+  </tr>
+  <tr>
+    <td>₹50L – ₹2Cr</td>
+    <td>Excellent ✨</td>
+  </tr>
+  <tr>
+    <td>&gt; ₹2Cr</td>
+    <td>Good 👍</td>
+  </tr>
+</table>
+
+<hr style="border:0; border-top:1px solid #e5e7eb; margin:24px 0;">
+
 <h2>📊 Sample Visualizations</h2>
-<p align="center"> <img width="1200" height="500" alt="EDA Visualization 1" src="https://github.com/user-attachments/assets/example-eda1.png" /> </p> <br>
-<p align="center"> <img width="1200" height="500" alt="Model Performance Visualization" src="https://github.com/user-attachments/assets/example-eda2.png" /> </p>
+       
+<p align="center">  <img width="1631" height="625" alt="d1" src="https://github.com/user-attachments/assets/031b52a4-c2b4-497a-b064-287e52d46287" /> </p> <br>
+<p align="center"> <img width="1233" height="848" alt="d2" src="https://github.com/user-attachments/assets/d985719d-2999-4849-8e8a-cafb3a36b022" /> </p>
 <hr style="border:0; border-top:1px solid #e5e7eb; margin:24px 0;">
-<h2>📂 Repository Structure</h2>
-<pre style="background:#f8fafc; padding:12px; border-radius:6px; border-left:4px solid #0ea5a6;"> Chennai_House_Price_Prediction/ │ ├── notebooks/ │ ├── eda_analysis.ipynb # Exploratory data analysis and visualizations │ ├── model_training.ipynb # Model benchmarking and evaluation │ ├── data/ │ └── chennai_housing.csv # Dataset (cleaned / preprocessed) │ ├── src/ │ ├── preprocessing.py # Data cleaning & transformation pipeline │ ├── train_model.py # XGBoost model training script │ ├── results/ │ ├── model_performance.csv # Metrics summary │ └── visuals/ # EDA and result plots │ └── README.md # Project documentation </pre>
-<hr style="border:0; border-top:1px solid #e5e7eb; margin:24px 0;">
-<h2>🌐 Explore Notebook</h2>
-<p align="center"> 🔗 <a href="https://colab.research.google.com/drive/YOUR_NOTEBOOK_LINK" target="_blank" style="font-size:16px; color:#0ea5a6; text-decoration:none;"> Open in Google Colab </a> </p>
+
 <hr style="border:0; border-top:1px solid #e5e7eb; margin:24px 0;">
 <h2>📫 Contact</h2>
 <p> <strong>Author:</strong> S. Rajadurai <br> <strong>Email:</strong> rajadurai3491@gmail.com <br> <strong>LinkedIn:</strong> <a href="https://www.linkedin.com/in/rajadurai-2004cse" target="_blank">View Profile</a> </p>
