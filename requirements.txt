@@ -7,3 +7,5 @@ catboost
 imbalanced-learn
 flask
 requests
+rapidfuzz
+lightgbm
