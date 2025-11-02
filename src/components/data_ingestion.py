@@ -3,7 +3,7 @@ import os
 sys.path.append(os.path.join(os.getcwd()))
 from sklearn.model_selection import train_test_split
 from raw_data_cleaning import initiate_raw_cleaning
-from model_trainer import best_model_finder
+# from model_trainer import best_model_finder
 from src.logger import logging
 import pandas as pd
 from dataclasses import dataclass
@@ -50,6 +50,7 @@ class data_ingestion:
 
       df = pd.read_csv(os.path.join(os.getcwd(),"artifacts","datasets","Chennai houseing sale.csv"))
       logging.info('Read the dataset')
+      logging.info(f"Length of Raw Dataset {len(df)}")
       #ingesting the data
       logging.info('Intiated Raw Data Cleaning')
       processed_df = initiate_raw_cleaning(df)
@@ -70,8 +71,8 @@ if __name__ == '__main__':
   features = ['BUILDTYPE','AREA','INT_SQFT','N_BEDROOM', 'N_BATHROOM', 'PARK_FACIL', 'STREET', 'Property_age']
   obj = data_ingestion()
   res = obj.ingest()
-  if res:
-    print(best_model_finder(pd.read_csv(obj.ingestion_config.train_data_path),pd.read_csv(obj.ingestion_config.test_data_path),features,'SALES_PRICE').pick_best_model())
+  # if res:
+  #   print(best_model_finder(pd.read_csv(obj.ingestion_config.train_data_path),pd.read_csv(obj.ingestion_config.test_data_path),features,'SALES_PRICE').pick_best_model())
 
   # print(best_model_finder(train_df=x_train,test_df=x_test).pick_best_model())
 

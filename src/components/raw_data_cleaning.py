@@ -5,112 +5,112 @@ sys.path.append(os.path.join(os.getcwd()))
 from datetime import datetime
 from rapidfuzz import process
 from src.logger import logging
+import config
+from statistics import stdev
 
 def initiate_raw_cleaning(df):
+
+   os.makedirs(config.NON_MATCHING_SAVE_POINT,exist_ok=True)
+
    df = df.copy()
+
    logging.info("Raw Data Transformation started")
+
    #Remove masked data
-   df.drop(['QS_ROOMS','QS_BATHROOM','QS_BEDROOM','QS_OVERALL'],axis=1)
+   df.drop(config.FEATURES_TO_DROP,axis=1,inplace=True)
 
    logging.info("Removed Masked Columns")
+
+   #Update to Imputation Method in next version
    #Check Nan ratio
-   no_of_nans = df.isna().sum().sum()
+   no_of_nans = df.isna().any(axis=1).sum()
    
-   if (no_of_nans/len(df)) * 100 >10:
-      logging.info('Data Check Required. Nan Ratio greater than 10%')
+   if (no_of_nans/len(df)) * 100 > config.ACCEPTABLE_NAN_PER:
+      logging.info('Data Check Required. Nan Ratio greater than acceptable nan percentage')
       logging.info('Operation Stopped!')
       return False
-      # if Nan ratio acceptable Remove Nans # Will replace with imputing methods in future
+   
+   df.dropna(inplace=True)
+   logging.info(f"Dropped {no_of_nans} nan rows")
+   logging.info(f"Current length of Dataset : {len(df)}")
+
+
    # Custom Transformation start
+   logging.info("Column Cleaning Started")
 
-   logging.info("Area Column Cleaning Started")
-   df['AREA'] = df['AREA'].str.lower()
-   unique_areas = df['AREA'].dropna().unique().tolist()
-   standard_names = ['chrompet', 't nagar', 'anna nagar', 'karapakkam', 'velachery', 'kk nagar', 'adyar']
-   counter = 0
-   mapping = {}
-   non_matching = []
-   for area in unique_areas:
-         match, score, _ = process.extractOne(area, standard_names, score_cutoff=80)
-         if match:
-            if area!=match:
-               mapping[area] = match
-         else:
-            non_matching.append(area)
-            counter+=1
+   for key,values in config.FEATURES_TO_MODIFY.items():
+      df[key] = df[key].str.lower()
+      unique_values = df[key].dropna().unique().tolist()
+      standard_names = values
+      counter = 0
+      mapping = {}
+      non_matching = []
+      for i in unique_values:
+            match, score, _ = process.extractOne(i, standard_names, score_cutoff=80)
+            if match:
+               if i!=match:
+                  mapping[i] = match
+            else:
+               non_matching.append(i)
+               counter+=1
 
-   # Matching and Non Matching
-   logging.info(f"Found {counter} data items with no matching area names")
-   df['AREA'] = df['AREA'].replace(mapping)
+      # Matching and Non Matching
+      logging.info(f"Found {counter} values with no matching the default {key} names")
+      non_matching_len = len(df[df[key].isin(non_matching)])
 
-   df = df[~df['AREA'].isin(non_matching)]
-
-   df['AREA'] = df['AREA'].replace({'chrompet':0, 't nagar':1, 'anna nagar':2, 'karapakkam':3, 'velachery':4, 'kk nagar':5, 'adyar':6})
-
-   df['AREA'] = df['AREA'].astype(int)
-   SAVE_POINT = os.path.join(os.getcwd(),'artifacts','non_matching')
-   os.makedirs(SAVE_POINT,exist_ok=True)
-
-   with open(os.path.join(SAVE_POINT,f"non_matching_areas_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.txt"),"w") as f:
-      f.write(",".join(non_matching))
-      f.write(f"Found {counter} data items with no matching area names")
+      if non_matching_len/len(df[~df[key].isna()]) >config.ACCEPTABLE_NON_MATCHING:
+         
+         logging.info('Operation Stopped!')
+         logging.info(f'Data Check Required. No of non matching items in {key} columns greater than ACCEPTABLE NON MATCHING')
+         return False
+      
+      df[key] = df[key].replace(mapping)
+      df = df[~df[key].isin(non_matching)]
+      with open(os.path.join(config.NON_MATCHING_SAVE_POINT,f"{key}_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.txt"),"w") as f:
+         f.write(",".join(non_matching))
+         f.write(f"Found {counter} values with no matching default {key} names \n")
+         f.write(f"No of data items with no matching name {non_matching_len} \n")
       
    
-   df['Property_age'] = pd.DatetimeIndex(df['DATE_SALE']).year - pd.DatetimeIndex(df['DATE_BUILD']).year
+   df[config.FEATURE_TO_ADD] = pd.DatetimeIndex(df[config.FEATURE_TO_ADD_BY_COLUMNS[0]]).year - pd.DatetimeIndex(df[config.FEATURE_TO_ADD_BY_COLUMNS[1]]).year
 
-   logging.info("BuildType Column Cleaning Started")
-   df['BUILDTYPE'] = df['BUILDTYPE'].str.lower()
+   return custom_cleaning(df)
 
-   unique_buildtype = df['BUILDTYPE'].dropna().unique().tolist()
-   standard_buildtype_names = ['commercial', 'others','house']
-   buildtype_counter = 0
-   buildtype_mapping = {}
-   non_matching_buildtype = []
-   for buildtype in unique_buildtype:
-         match, score, _ = process.extractOne(buildtype, standard_buildtype_names, score_cutoff=80)
-         if match:
-            if buildtype!=match:
-               buildtype_mapping[buildtype] = match
-         else:
-            non_matching_buildtype.append(buildtype)
-            buildtype_counter+=1
+def return_bin(x):
+    return (int(x)//(100)) * (10)
 
-   with open(os.path.join(SAVE_POINT,f"non_matching_buildtype_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.txt"),"w") as f:
-      f.write(",".join(non_matching_buildtype))
-      f.write(f"Found {buildtype_counter} data items with no matching buildtype names")
+def custom_cleaning(df):
 
-   df['BUILDTYPE'] = df['BUILDTYPE'].replace(buildtype_mapping)
-
-   df = df[~df['BUILDTYPE'].isin(non_matching_buildtype)]
-
-   df['BUILDTYPE'] = df['BUILDTYPE'].replace({'commercial':0, 'others':1,'house':2})
-   df['BUILDTYPE'] = df['BUILDTYPE'].astype(int)
-
-   logging.info(f"Found {counter} data items with no matching buildtype names")
-   logging.info("Raw Data Cleaning Sucessfull!!")
+   df = df.copy()
    
-   df['PARK_FACIL'] = df['PARK_FACIL'].str.lower()
-   unique_parkfacil = df['PARK_FACIL'].dropna().unique().tolist()
-   parkfacil_match = {}
-   non_matching_parkfacil = []
-   for i in unique_parkfacil:
-      if i[0]=='y':
-         if (i!='yes'):
-            parkfacil_match[i] = 'yes'
-      elif i[0]=='n':
-         if (i!='no'):
-            parkfacil_match[i] =  'no'
-      else:
-         non_matching_parkfacil.append(i)
-         
-            
+   _outlier = df[df['INT_SQFT']/df['N_BEDROOM']<400]
 
+   logging.info(f'Found {len(_outlier)} outliers based on sqft and no of bedroom logic.')
 
-   df['PARK_FACIL'] = df['PARK_FACIL'].replace(parkfacil_match)
-   df = df[~df['PARK_FACIL'].isin(non_matching_parkfacil)]
-   df['PARK_FACIL'] = df['PARK_FACIL'].astype(int)
-         
-         
-   df.dropna(inplace=True)
+   df.drop(df[df['INT_SQFT']/df['N_BEDROOM']<400].index,inplace=True)
+
+   #Median Based outlier Treatment
+   df['BIN_SQFT'] = df['INT_SQFT'].apply(return_bin)
+  
+   stats = df.groupby(config.CUSTOM_CLEANING_FEATURES).agg(
+      median_sales = (config.TARGET_FEATURE,'median'),
+      std_sales = (config.TARGET_FEATURE,'std'),
+      count_sales = (config.TARGET_FEATURE,'count'),
+      min_sales = (config.TARGET_FEATURE,'min'),
+      max_sales = (config.TARGET_FEATURE,'max')
+   ).reset_index()
+   stats['std_sales'] = stats['std_sales'].fillna(0)
+
+   df = df.merge(stats,on=config.CUSTOM_CLEANING_FEATURES,how='left')
+
+   transformation_len = df[(df[config.TARGET_FEATURE] >= (df['median_sales']+2*df['std_sales'])) | (df[config.TARGET_FEATURE] <= (df['median_sales']-2*df['std_sales']))]['AREA'].value_counts().sum()
+
+   logging.info(f"Found {transformation_len} outliers based on median strategy")
+
+   df.drop(df[((df[config.TARGET_FEATURE] >= (df['median_sales']+2*df['std_sales'])) | (df[config.TARGET_FEATURE] <= (df['median_sales']-2*df['std_sales']))) & (df['count_sales']>9)].index,inplace=True)
+
    return df
-   
+
+if __name__ == '__main__':
+   df = initiate_raw_cleaning(pd.read_csv(os.path.join(config.DATAPATH,config.RAW_DATA_FILE)))
+   print(type(df)==bool)

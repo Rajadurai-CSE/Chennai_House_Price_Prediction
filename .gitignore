@@ -4,3 +4,4 @@ logs/
 src/__pycache__
 components/__pycache__
 artifacts/non_matching/
+__pycache__
